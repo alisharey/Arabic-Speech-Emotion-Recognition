@@ -34,27 +34,22 @@ This repository contains the implementation of an emotion recognition model usin
     
 
 ## Usage
-First exract the KSUEmotion dataset in the root folder.
+First exract the KSUEmotion dataset (Download from link sent in submission) in the root folder.
+Unzip the 91.65 weights in the root folder as well.
 
 To train and test the emotion recognition model, run the following command:
 ```bash
-python main.py --include_augmentation
-```
-After the first run the data will be processed data will be saved as arrays and can be re-used using the following command for training.
-
-```bash
-python main.py --use_saved_files
-```
-to train with augementataion you can use the previous commands and add `--include_augmentation` flag.
-
-```bash
 python main.py --use_saved_files --include_augmentation
 ```
-
-
 To only test the model using pre-trained weights, you need to do at least one training run to save the arrays then run:
 ```bash
 python main.py --test_only
+```
+
+To use the original dataset files run without `--use_saved_files`, the data will be saved as arrays and can be re-used using the `--use_saved_files` later.
+
+```bash
+python main.py 
 ```
 
 
