@@ -1,7 +1,6 @@
 # Emotion Recognition Model
 
-
-This repository contains the implementation of an emotion recognition model using deep learning techniques. The model is designed to recognize emotions from speech data using spectrograms and various neural network architectures.
+This repository contains the implementation of an emotion recognition model using a CNN-BiLSTM-Attention architecture on KSUEmotion dataset.
 
 ## Table of Contents
 - [Installation](#installation)
@@ -38,19 +37,19 @@ To train and test the emotion recognition model, run the following command:
 ```bash
 python main.py 
 ```
-After the first run the data will be saved as arrays and can be reused usign the following commands for training.
+After the first run the data will be processed data will be saved as arrays and can be re-used using the following command for training.
 
 ```bash
 python main.py --use_saved_files
 ```
-to train with augementataion you use the previous commands and add `--include_augmentation` flag.
+to train with augementataion you can use the previous commands and add `--include_augmentation` flag.
 
 ```bash
 python main.py --use_saved_files --include_augmentation
 ```
 
 
-To only test the model using pre-trained weights, you need to do at least run one training to save the arrays first then run:
+To only test the model using pre-trained weights, you need to do at least one training run to save the arrays then run:
 ```bash
 python main.py --test_only
 ```
