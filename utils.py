@@ -283,7 +283,7 @@ def load_and_preprocess_ksu_emotions(num_folds=5, include_augmentation=True):
         Y_train = np.array(train_df.Emotion)
         X_test = np.expand_dims(mel_spectrograms_test, 1)
         Y_test = np.array(test_df.Emotion)
-        #X_train, X_test = scale(X_train, X_test)        
+        X_train, X_test = scale(X_train, X_test)        
         save_datasets(X_train=X_train, X_test=X_test, Y_train=Y_train, Y_test=Y_test, filename=f"dataset_fold{fold_num}") 
 
 

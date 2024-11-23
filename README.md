@@ -38,7 +38,7 @@ First exract the KSUEmotion dataset in the root folder.
 
 To train and test the emotion recognition model, run the following command:
 ```bash
-python main.py 
+python main.py --include_augmentation
 ```
 After the first run the data will be processed data will be saved as arrays and can be re-used using the following command for training.
 

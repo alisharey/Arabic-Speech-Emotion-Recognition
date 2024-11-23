@@ -271,7 +271,7 @@ def train_emotion_model_with_k_fold(use_saved_files=False, include_augmentation=
               EPOCHS = 100,              
               LEARNING_RATE = 1e-4,
               WEIGHT_DECAY = 1e-5,
-              EARLY_STOPPING_PATIENCE = 40)
+              EARLY_STOPPING_PATIENCE = 20)
         
 
 
