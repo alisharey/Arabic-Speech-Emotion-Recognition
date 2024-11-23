@@ -220,12 +220,12 @@ def EYASE_dataset(path):
     return df
 
 
-def create_folds(Data):
+def create_folds(Data, num_folds=5):
 
      # Assuming ksu_emotions_df is your DataFrame
 
     # Initialize StratifiedKFold with 5 splits
-    skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=455)
+    skf = StratifiedKFold(n_splits=num_folds, shuffle=True, random_state=455)
 
     # Create a list to store the train and test DataFrames for each fold
     folds = []
@@ -238,6 +238,69 @@ def create_folds(Data):
     
     return folds
 
+
+
+def load_and_preprocess_ksu_emotions(num_folds=5, include_augmentation=True):
+    """
+    Load and preprocess the KSU emotions dataset, optionally including data augmentation.
+    Parameters:
+    include_augmentation (bool): If True, apply data augmentation to the training data.
+    Returns:
+    tuple: A tuple containing four lists:
+        - X_train_list (list of np.ndarray): List of training data arrays for each fold.
+        - X_test_list (list of np.ndarray): List of testing data arrays for each fold.
+        - Y_train_list (list of np.ndarray): List of training labels for each fold.
+        - Y_test_list (list of np.ndarray): List of testing labels for each fold.
+    """
+    base_path = 'ksu_emotions/data/SPEECH'
+    SAMPLE_RATE = 16_000  # Sample rate of the audio files
+    duration = 10
+    num_augmentations = 2 if include_augmentation else 0
+    
+    folds = create_folds(Data=load_ksu_dataset(base_path), num_folds=num_folds)
+    X_train_list = []
+    X_test_list = []
+    Y_train_list = []
+    Y_test_list = []     
+    
+    for f, (train_df, test_df) in enumerate(folds):
+        fold_num = f + 1
+        print(f"Fold {fold_num}, {train_df.shape, test_df.shape}:")
+        mel_spectrograms, signals, mel_spectrograms_test = load_spectograms(train_df, test_df, num_augmentations, duration, SAMPLE_RATE)
+        k = train_df.shape[0]
+        print(f"signals'shape {signals.shape}")
+
+        if include_augmentation:
+        # applying augmentations
+            for i,signal in enumerate(signals):
+                augmented_signals = add_augmentation(signal, augmented_num=num_augmentations)
+                #augmented_signals = addAWGN(signal)
+                for j in range(augmented_signals.shape[0]):
+                    mel_spectrogram = get_log_mel_spectrogram(augmented_signals[j,:], sample_rate=SAMPLE_RATE)       
+                    mel_spectrograms[k] = mel_spectrogram
+                    k += 1
+                    train_df = pd.concat([train_df, train_df.iloc[i:i+1]], ignore_index=True)
+                print("\r Processed {}/{} files".format(i,len(signals)),end='')
+
+        del signals
+
+            
+
+        X_train = np.expand_dims(mel_spectrograms,1)        
+        Y_train = np.array(train_df.Emotion)
+        X_test = np.expand_dims(mel_spectrograms_test, 1)
+        Y_test = np.array(test_df.Emotion)
+        X_train, X_test = scale(X_train, X_test)
+
+        X_train_list.append(X_train)
+        X_test_list.append(X_test)
+        Y_train_list.append(Y_train)    
+        Y_test_list.append(Y_test)
+        #save_datasets(X_train=X_train, X_test=X_test, Y_train=Y_train, Y_test=Y_test, filename=f"dataset_fold{fold_num}") 
+
+    return X_train_list, X_test_list, Y_train_list, Y_test_list
+    
+    
 
 
 

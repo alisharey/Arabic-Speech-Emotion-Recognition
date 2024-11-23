@@ -17,8 +17,9 @@ class EmotionRecognitionModel(nn.Module):
 
         self.kernel_size = kernel_size
         self.padding = padding
-        print(f"Kernel size: {self.kernel_size}, Padding: {self.padding}")    
-       # Convolutional layers for feature extraction
+        
+        
+        # Convolutional layers for feature extraction
         self.conv_block = nn.Sequential(
             # First conv block
             
@@ -98,57 +99,54 @@ class EmotionRecognitionModel(nn.Module):
 
 
 
-# Initialize model
-#num_emotions = np.unique(augmented_labels).shape[0]
+# Training and validation functions
+def train_epoch(model, loader, optimizer, loss_fn, device):
+    model.train()
+    epoch_loss = 0
+    correct_preds = 0
+    total_samples = 0
 
-
-# Define the loss function once
-loss_fn = nn.CrossEntropyLoss()
-
-def make_train_step(model, optimizer):
-    def train_step(X, Y):
-        # Set model to train mode
-        model.train()
-
-        # Move data to the same device as model
-        X = X.to(next(model.parameters()).device)
-        Y = Y.to(next(model.parameters()).device)
-
-        # Zero gradients
-        optimizer.zero_grad()
+    for X_batch, Y_batch in loader:
+        X_batch, Y_batch = X_batch.to(device), Y_batch.to(device)
 
         # Forward pass
-        output_logits = model(X)
-
-        # Compute loss
-        loss = loss_fn(output_logits, Y)
+        optimizer.zero_grad()
+        outputs = model(X_batch)
+        loss = loss_fn(outputs, Y_batch)
 
         # Backward pass and optimization
         loss.backward()
         optimizer.step()
 
-        # Compute predictions and accuracy
-        with torch.no_grad():
-            predictions = torch.argmax(output_logits, dim=1)
-            correct = (predictions == Y).sum().item()
-            accuracy = correct / Y.size(0) * 100.0
+        # Accumulate metrics
+        epoch_loss += loss.item() * X_batch.size(0)
+        _, predicted = torch.max(outputs.data, 1)
+        correct_preds += (predicted == Y_batch).sum().item()
+        total_samples += Y_batch.size(0)
 
-        return loss.item(), accuracy
-    return train_step
+    epoch_loss /= total_samples
+    accuracy = (correct_preds / total_samples) * 100
+    return epoch_loss, accuracy
 
-def make_validate_fnc(model):
-    def validate(X, Y):
-        model.eval()
-        with torch.no_grad():
-            # Move data to the same device as model
-            X = X.to(next(model.parameters()).device)
-            Y = Y.to(next(model.parameters()).device)
+def validate_epoch(model, loader, loss_fn, device):
+    model.eval()
+    epoch_loss = 0
+    correct_preds = 0
+    total_samples = 0
 
-            output_logits = model(X)
-            loss = loss_fn(output_logits, Y)
-            predictions = torch.argmax(output_logits, dim=1)
-            correct = (predictions == Y).sum().item()
-            accuracy = correct / Y.size(0) * 100.0
-        return loss.item(), accuracy, predictions
-    return validate
+    with torch.no_grad():
+        for X_batch, Y_batch in loader:
+            X_batch, Y_batch = X_batch.to(device), Y_batch.to(device)
 
+            outputs = model(X_batch)
+            loss = loss_fn(outputs, Y_batch)
+
+            # Accumulate metrics
+            epoch_loss += loss.item() * X_batch.size(0)
+            _, predicted = torch.max(outputs.data, 1)
+            correct_preds += (predicted == Y_batch).sum().item()
+            total_samples += Y_batch.size(0)
+
+    epoch_loss /= total_samples
+    accuracy = (correct_preds / total_samples) * 100
+    return epoch_loss, accuracy
