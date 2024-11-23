@@ -19,18 +19,17 @@ This repository contains the implementation of an emotion recognition model usin
     cd AR-Emotion-Recognition
     ```
 
-2. Install the required dependencies:
 
-Create and activate a conda environment with Python 3.12.1 and install pip:
+2. Create and activate a conda environment with Python 3.12.1 and install pip:
     ```bash
     conda create -n emotion_recognition python=3.12.1 pip
     conda activate emotion_recognition
     ```
-Then 
+3. Install the required dependencies:
     ```bash
     pip install -r requirements.txt
     ```
-    to get the required libraries
+    
 
 ## Usage
 First exract the KSUEmotion dataset in the root folder.
