@@ -26,7 +26,7 @@ Create and activate a conda environment with Python 3.12.1 and install pip:
     conda create -n emotion_recognition python=3.12.1 pip
     conda activate emotion_recognition
     ```
-
+Then 
     ```bash
     pip install -r requirements.txt
     ```
