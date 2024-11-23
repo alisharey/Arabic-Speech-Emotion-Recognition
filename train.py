@@ -98,7 +98,7 @@ def test_report_kfold(k=5):
     # Define emotion labels
     emotion_labels = ['Neutral', 'Happy', 'Sad', 'Surprise', 'Angry', 'Fear']
 
-    # Plot the normalized confusion matrix
+    # Plot the averaged confusion matrix
     plt.figure(figsize=(10, 8))
     sns.heatmap(cm_normalized, annot=True, fmt='d', cmap='Blues', xticklabels=emotion_labels, yticklabels=emotion_labels)
     plt.title('Averaged Confusion Matrix')
@@ -123,11 +123,9 @@ def test_report_kfold(k=5):
     sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
     plt.title('Overall Confusion Matrix')
     plt.ylabel('True Label')
-    plt.xlabel('Predicted Label')
-    
-    # Save the confusion matrix as an image file (e.g., PNG)
-    plt.savefig('confusion_matrix.png')  # Saves the figure as 'confusion_matrix.png'
-    plt.close()  # Close the figure to free up memory
+    plt.xlabel('Predicted Label')  
+    plt.savefig('confusion_matrix.png') 
+    plt.close() 
 
     # Print overall classification report
     emotion_labels = ['Neutral', 'Happy', 'Sad', 'Surprise', 'Angry', 'Fear']
@@ -167,8 +165,6 @@ def train_model(save_id, model, X_train, Y_train, X_val, Y_val, device, # Hyperp
     # Optimizer and loss function
     #optimizer = ADOPT(model.parameters(), lr=LEARNING_RATE, weight_decay=WEIGHT_DECAY)
     optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE, weight_decay=WEIGHT_DECAY)
-   
-
     loss_fn = nn.CrossEntropyLoss()
 
 
@@ -243,32 +239,21 @@ def train_emotion_model_with_k_fold(use_saved_files=False, include_augmentation=
     
     num_folds = 5
 
-    if use_saved_files:
-        X_train_list, X_test_list, Y_train_list, Y_test_list = [], [], [], []
-        for f in range(num_folds):
-            fold_num = f + 1
-            X_train, X_test, Y_train, Y_test = load_datasets(filename=f"dataset_fold{fold_num}")
-
-            # use only the first third of X_train, Y_train if include_augmentation is false
-            if not include_augmentation:
-                X_train = X_train[:int(X_train.shape[0] / 3)]
-                Y_train = Y_train[:int(Y_train.shape[0] / 3)]
-
-            X_train_list.append(X_train)
-            X_test_list.append(X_test)
-            Y_train_list.append(Y_train)
-            Y_test_list.append(Y_test)
-    else:
-        X_train_list, X_test_list, Y_train_list, Y_test_list = load_and_preprocess_ksu_emotions(num_folds=num_folds,include_augmentation=include_augmentation)
-
-
+    if not use_saved_files:   
+        load_and_preprocess_ksu_emotions(num_folds=num_folds,include_augmentation=include_augmentation)        
+     
+        
+        
     
     for f in range(num_folds):
-        fold_num = f + 1
-        X_train = X_train_list[f]
-        Y_train = Y_train_list[f]
-        X_test = X_test_list[f]
-        Y_test = Y_test_list[f]        
+        fold_num = f + 1        
+        X_train, X_test, Y_train, Y_test = load_datasets(filename=f"dataset_fold{fold_num}")
+
+
+        # this is only true if the saved files included 2 augmented versions of the original data, comment out if not (note to self: remove later maybe)
+        if not include_augmentation and use_saved_files:
+            X_train = X_train[:int(X_train.shape[0] / 3)]
+            Y_train = Y_train[:int(Y_train.shape[0] / 3)]        
 
         print(f"Fold {fold_num}, {X_train.shape, X_test.shape}:")        
         device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -286,7 +271,7 @@ def train_emotion_model_with_k_fold(use_saved_files=False, include_augmentation=
               EPOCHS = 100,              
               LEARNING_RATE = 1e-4,
               WEIGHT_DECAY = 1e-5,
-              EARLY_STOPPING_PATIENCE = 20)
+              EARLY_STOPPING_PATIENCE = 40)
         
 
 

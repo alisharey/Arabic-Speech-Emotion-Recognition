@@ -1,12 +1,15 @@
 # Emotion Recognition Model
+## Model Architecture
+
+The emotion recognition model is built using a CNN-BiLSTM-Attention architecture. The architecture is designed to capture both spatial and temporal features from the input data, making it well-suited for emotion recognition tasks.
+
+![Model Architecture](Architecture.png)
 
 This repository contains the implementation of an emotion recognition model using a CNN-BiLSTM-Attention architecture on KSUEmotion dataset.
 
 ## Table of Contents
 - [Installation](#installation)
 - [Usage](#usage)
-- [Training and Evaluation](#training-and-evaluation)
-- [Results](#results)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -53,28 +56,6 @@ To only test the model using pre-trained weights, you need to do at least one tr
 ```bash
 python main.py --test_only
 ```
-
-## Training and Evaluation
-
-The training process involves the following steps:
-1. Load and preprocess the dataset.
-2. Perform data augmentation on the training data.
-3. Train the model using k-fold cross-validation.
-4. Evaluate the model on the test data.
-
-### Training
-
-To train the model, use the `train_test_model` function which performs k-fold cross-validation and saves the best model for each fold. Note that arrays of the folds are saved for testing and each fold is about 2.7 gb in size.
-
-After that `train_test_using_files` be used for trainning for faster processing. 
-
-### Evaluation
-
-The `test` function evaluates the model on the test data and computes various metrics such as accuracy, confusion matrix, and F1 scores.
-
-## Results
-
-The results of the model are evaluated using metrics such as accuracy, confusion matrix, and F1 scores. The confusion matrix and classification report are saved as images for further analysis.
 
 
 

@@ -149,7 +149,7 @@ def load_ksu_dataset(base_path):
         emotion_folders = glob.glob(os.path.join(phase_path, 'E*'))
         
         # Iterate over each emotion folder
-        for emotion_folder in tqdm(emotion_folders, desc=f"Processing {phase}"):
+        for emotion_folder in tqdm.tqdm(emotion_folders, desc=f"Processing {phase}"):
             emotion_code = os.path.basename(emotion_folder)  # Get E00-E05
             
             # Get all audio files in the emotion folder
@@ -192,7 +192,7 @@ def EYASE_dataset(path):
     all_folders_directory = glob.glob(os.path.join(path, '*'))
     
     # Iterate over each subfolder
-    for folder in tqdm(all_folders_directory, desc="Processing Folders"):
+    for folder in tqdm.tqdm(all_folders_directory, desc="Processing Folders"):
         # Get all files inside the subfolder
         sub_folder = glob.glob(os.path.join(folder, '*'))
         
@@ -242,15 +242,11 @@ def create_folds(Data, num_folds=5):
 
 def load_and_preprocess_ksu_emotions(num_folds=5, include_augmentation=True):
     """
-    Load and preprocess the KSU emotions dataset, optionally including data augmentation.
+    Load and preprocess the KSU emotions dataset, optionally including data augmentation. and saves the files
     Parameters:
     include_augmentation (bool): If True, apply data augmentation to the training data.
     Returns:
-    tuple: A tuple containing four lists:
-        - X_train_list (list of np.ndarray): List of training data arrays for each fold.
-        - X_test_list (list of np.ndarray): List of testing data arrays for each fold.
-        - Y_train_list (list of np.ndarray): List of training labels for each fold.
-        - Y_test_list (list of np.ndarray): List of testing labels for each fold.
+    None
     """
     base_path = 'ksu_emotions/data/SPEECH'
     SAMPLE_RATE = 16_000  # Sample rate of the audio files
@@ -258,10 +254,7 @@ def load_and_preprocess_ksu_emotions(num_folds=5, include_augmentation=True):
     num_augmentations = 2 if include_augmentation else 0
     
     folds = create_folds(Data=load_ksu_dataset(base_path), num_folds=num_folds)
-    X_train_list = []
-    X_test_list = []
-    Y_train_list = []
-    Y_test_list = []     
+      
     
     for f, (train_df, test_df) in enumerate(folds):
         fold_num = f + 1
@@ -290,15 +283,10 @@ def load_and_preprocess_ksu_emotions(num_folds=5, include_augmentation=True):
         Y_train = np.array(train_df.Emotion)
         X_test = np.expand_dims(mel_spectrograms_test, 1)
         Y_test = np.array(test_df.Emotion)
-        X_train, X_test = scale(X_train, X_test)
+        #X_train, X_test = scale(X_train, X_test)        
+        save_datasets(X_train=X_train, X_test=X_test, Y_train=Y_train, Y_test=Y_test, filename=f"dataset_fold{fold_num}") 
 
-        X_train_list.append(X_train)
-        X_test_list.append(X_test)
-        Y_train_list.append(Y_train)    
-        Y_test_list.append(Y_test)
-        #save_datasets(X_train=X_train, X_test=X_test, Y_train=Y_train, Y_test=Y_test, filename=f"dataset_fold{fold_num}") 
 
-    return X_train_list, X_test_list, Y_train_list, Y_test_list
     
     
 
@@ -353,7 +341,7 @@ def sigToSpectogram(data, final_shape, duration = 10 ,sample_rate=22500):
     # Process files in parallel
     results = Parallel(n_jobs=-1)(
         delayed(process_file)(file_path) 
-        for file_path in tqdm(data.Path, desc="Processing audio files")
+        for file_path in tqdm.tqdm(data.Path, desc="Processing audio files")
     )
     
     # Store results in mel_spectrograms array and signals list
