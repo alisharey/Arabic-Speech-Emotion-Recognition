@@ -5,7 +5,7 @@ import torch.nn.functional as F
 
 class EmotionRecognitionModel(nn.Module):
     
-    def __init__(self, num_emotions, input_height, kernel_size=12, padding=5):
+    def __init__(self, num_emotions, input_height, kernel_size=10, padding=5):
         """
         Initialize the EmotionRecognitionModel.
 
