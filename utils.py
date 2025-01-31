@@ -127,6 +127,54 @@ def parse_filename(filename):
         'trial': trial
     }
 
+
+def load_kedas_dataset(base_path):
+     # Prepare the data list and emotion encoding
+    data = []
+    emotion_encoding = {
+        "E1": 0,  # Angry
+        "E2": 1,  # Sadness 
+        "E3": 2,  # Fear
+        "E4": 3,  # Happiness
+        "E5": 4   # Neutrality
+    }
+ # Get all actor folders
+    actor_folders = glob.glob(os.path.join(base_path, 'actor-*'))
+    print(len(actor_folders))
+ # Process each actor folder
+    for actor_folder in tqdm.tqdm(actor_folders, desc="Processing actors"):
+        actor_num = actor_folder.split('-')[-1]
+        audio_files = glob.glob(os.path.join(actor_folder, '*'))
+        for audio_file in audio_files:
+            filename = os.path.basename(audio_file)
+            parts = filename.split('-')
+            
+            # Extract information from filename
+            actor_id = parts[0]
+            gender = '1' if parts[1] == 'f' else '0'
+            age_group = parts[2]
+            emotion = parts[3].split('.')[0]  # Remove file extension
+         # Get audio duration
+            duration = get_audio_duration(audio_file)
+            #print(duration)
+         # Create data entry
+            data.append({
+                "Path": audio_file,
+                "Actor": actor_id,
+                "Gender": gender,
+                "Age_Group": age_group,
+                "Emotion": emotion_encoding.get(emotion, -1),
+                "Emotion_Label": emotion,
+                
+            })
+
+        # Convert to DataFrame
+    df = pd.DataFrame(data)
+    return df
+
+
+
+
 def load_ksu_dataset(base_path):
     data = []
     # Emotion encoding dictionary based on folder names (E00 to E05)
@@ -239,6 +287,22 @@ def create_folds(Data, num_folds=5):
     return folds
 
 
+def load_Baved_dataset(path):
+  data = []
+  all_folders_directory = glob.glob(path)
+  for folder in all_folders_directory:
+    sub_folder = glob.glob(folder+"/*")
+    for wave_file in sub_folder:
+      data.append({
+          "Path":wave_file,
+          "Emotion" : int(wave_file.split("-")[-2])
+      })
+ 
+  df = pd.DataFrame(data)
+  return df
+
+
+
 
 def load_and_preprocess_ksu_emotions(num_folds=5, include_augmentation=True):
     """
@@ -248,13 +312,33 @@ def load_and_preprocess_ksu_emotions(num_folds=5, include_augmentation=True):
     Returns:
     None
     """
-    base_path = 'ksu_emotions/data/SPEECH'
-    SAMPLE_RATE = 16_000  # Sample rate of the audio files
-    duration = 10
+    
+    
+    
     num_augmentations = 2 if include_augmentation else 0
     
+    SAMPLE_RATE = 16_000  # Sample rate of the audio files
+    
+    base_path = 'ksu_emotions/data/SPEECH'
+    duration = 9
     folds = create_folds(Data=load_ksu_dataset(base_path), num_folds=num_folds)
+
+
+
+
+   
+
+
+    # SAMPLE_RATE = 44_100
+   
+    # duration = 2
+    # base_path = "/home/ali/Arabic-Speech-Emotion-Recognition/KEDAS/Data"
+     
+    # folds = create_folds(Data=load_kedas_dataset(base_path), num_folds=num_folds)
       
+    # base_path = 'content/BAVE/remake/*'
+    # folds=create_folds(Data=load_Baved_dataset(base_path), num_folds=num_folds)
+
     
     for f, (train_df, test_df) in enumerate(folds):
         fold_num = f + 1
@@ -277,7 +361,7 @@ def load_and_preprocess_ksu_emotions(num_folds=5, include_augmentation=True):
 
         del signals
 
-            
+
 
         X_train = np.expand_dims(mel_spectrograms,1)        
         Y_train = np.array(train_df.Emotion)
@@ -287,8 +371,10 @@ def load_and_preprocess_ksu_emotions(num_folds=5, include_augmentation=True):
         save_datasets(X_train=X_train, X_test=X_test, Y_train=Y_train, Y_test=Y_test, filename=f"dataset_fold{fold_num}") 
 
 
-    
-    
+
+
+      
+
 
 
 
