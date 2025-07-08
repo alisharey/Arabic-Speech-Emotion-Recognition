@@ -1,9 +1,10 @@
 # Emotion Recognition Model
 ## Model Architecture
 
-The emotion recognition model is built using a CNN-BiLSTM-Attention architecture. The architecture is designed to capture both spatial and temporal features from the input data, making it well-suited for emotion recognition tasks.
+The emotion recognition model is built using a CNN-BiLSTM-Attention architecture. 
 
-![Model Architecture](Architecture.png)
+![Model Architecture](https://github.com/user-attachments/assets/e469773f-8009-4be6-8772-f2c20c43c8ea)
+
 
 This repository contains the implementation of an emotion recognition model using a CNN-BiLSTM-Attention architecture on KSUEmotion dataset.
 
